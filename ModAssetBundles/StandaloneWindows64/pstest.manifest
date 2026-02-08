@@ -1,0 +1,52 @@
+ManifestFileVersion: 0
+CRC: 4103662107
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 356a3c19c9c69b37a874922bf5c9df3c
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 6244f0346168fe82f7abd7100a4ae66f
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 356a3c19c9c69b37a874922bf5c9df3c
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 49
+  Script: {instanceID: 0}
+- Class: 65
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Content/Models/RocketFactOut.prefab
+- Assets/_ModAssets_/ModManifest.xml.bytes
+- Assets/Content/Models/carMili.prefab
+- Assets/Content/Models/oldHouse3.prefab
+- Assets/Content/Models/oldHouse1.prefab
+- Assets/Content/Models/heliBladeVice.prefab
+- Assets/Content/Models/heliBladeMain.prefab
+- Assets/Content/Models/RocketFactoryInside.prefab
+- Assets/Content/Models/deadPlane.prefab
+- Assets/Content/Models/carCivi.prefab
+- Assets/Content/Models/oldHouse2.prefab
+- Assets/Content/Models/Bus.prefab
+- Assets/Content/Models/treeTypeA.prefab
+- Assets/_ModAssets_/psTEst.dll.bytes
+- Assets/Content/Models/heliBody.prefab
+Dependencies: []

@@ -1,0 +1,7 @@
+ManifestFileVersion: 0
+CRC: 3878087886
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: pstest
+      Dependencies: {}
