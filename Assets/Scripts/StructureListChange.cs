@@ -65,9 +65,9 @@ public static class StructureListChange
         return codes.AsEnumerable();
     }
 
-    [HarmonyPrefix]
+    [HarmonyPostfix]
     [HarmonyPatch(typeof(StructureNode), "InstantiateSubStructures")]
-    private static bool InitSubStrucuturePrefix(Transform parent, IEnumerable<SubStructure> subStructures, ref int lod, ref bool insideRigidBody, StructureNode __instance)
+    private static void InitSubStrucuturePrefix(Transform parent, IEnumerable<SubStructure> subStructures, ref int lod, ref bool insideRigidBody, StructureNode __instance)
     {
         TerrainQualitySettings.StructureDetailQuality structureDetailQuality = Game.InPlanetStudioScene ? TerrainQualitySettings.StructureDetailQuality.High : Game.Instance.QualitySettings.Terrain.StructureDetail.Value;
         foreach (SubStructure subStructure in subStructures)
@@ -124,7 +124,7 @@ public static class StructureListChange
             {
             }
         }
-        return false;
+        
     }
 
     public static void StartAdd()
