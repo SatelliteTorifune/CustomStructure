@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 4103662107
+CRC: 3553314091
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 356a3c19c9c69b37a874922bf5c9df3c
+    Hash: b3a9901cba7a50b71236672dc8c85dcd
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 6244f0346168fe82f7abd7100a4ae66f
+    Hash: 4c09d224e1539fe1470f103a164400d1
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 356a3c19c9c69b37a874922bf5c9df3c
+    Hash: b3a9901cba7a50b71236672dc8c85dcd
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -30,23 +30,159 @@ ClassTypes:
   Script: {instanceID: 0}
 - Class: 49
   Script: {instanceID: 0}
+- Class: 54
+  Script: {instanceID: 0}
+- Class: 64
+  Script: {instanceID: 0}
 - Class: 65
+  Script: {instanceID: 0}
+- Class: 108
+  Script: {instanceID: 0}
+- Class: 136
+  Script: {instanceID: 0}
+- Class: 193
+  Script: {instanceID: 0}
+- Class: 205
   Script: {instanceID: 0}
 SerializeReferenceClassIdentifiers: []
 Assets:
-- Assets/Content/Models/RocketFactOut.prefab
-- Assets/_ModAssets_/ModManifest.xml.bytes
-- Assets/Content/Models/carMili.prefab
-- Assets/Content/Models/oldHouse3.prefab
-- Assets/Content/Models/oldHouse1.prefab
-- Assets/Content/Models/heliBladeVice.prefab
-- Assets/Content/Models/heliBladeMain.prefab
-- Assets/Content/Models/RocketFactoryInside.prefab
-- Assets/Content/Models/deadPlane.prefab
-- Assets/Content/Models/carCivi.prefab
-- Assets/Content/Models/oldHouse2.prefab
-- Assets/Content/Models/Bus.prefab
-- Assets/Content/Models/treeTypeA.prefab
+- Assets/Content/Models/StreetLighting.prefab
+- Assets/Content/Models/rus_build_9et_02.prefab
+- Assets/Content/Models/MeshFence.prefab
+- Assets/Content/Models/rus_build_5et_02a.prefab
+- Assets/Content/Models/treeTypeB.prefab
+- Assets/Content/Models/RoadBarrierMetalSheet.prefab
 - Assets/_ModAssets_/psTEst.dll.bytes
+- Assets/Content/Models/oldHouse3.prefab
+- Assets/Content/Models/electric_tower_05.prefab
+- Assets/Content/Models/electric_tower_07.prefab
+- Assets/Content/Models/6.prefab
+- Assets/Content/Models/oldHouse1.prefab
+- Assets/Content/Models/PO2.prefab
+- Assets/Content/Models/BrickWall1.prefab
+- Assets/Content/Models/rus_build_5et_03.prefab
+- Assets/Content/Models/rus_build_5et_04.prefab
+- Assets/Content/Models/4.prefab
+- Assets/Content/Models/MetalSheetRackOld.prefab
+- Assets/Content/Models/OldWoodDoorWay.prefab
+- Assets/Content/Models/rus_build_5et_03d.prefab
+- Assets/Content/Models/Tower1.prefab
+- Assets/Content/Models/rus_build_5et_03c.prefab
+- Assets/Content/Models/rus_build_5et_06.prefab
+- Assets/Content/Models/electric_tower_04.prefab
+- Assets/Content/Models/RocketFactoryInside.prefab
+- Assets/Content/Models/electric_tower_09.prefab
+- Assets/Content/Models/WoodFence.prefab
+- Assets/Content/Models/oldHouse2.prefab
+- "Assets/Content/Models/\u5355\u81C2\u8DEF\u706F.prefab"
+- Assets/Content/Models/Bus.prefab
+- Assets/Content/Models/Rock.prefab
+- Assets/Content/Models/rus_build_9et_01a.prefab
+- Assets/Content/Models/ConcretePillar.prefab
+- Assets/Content/Models/MeshFence2.prefab
+- Assets/Content/Models/Old Paving Stones.prefab
+- Assets/Content/Models/rus_build_9et_02a.prefab
+- Assets/Content/Models/electric_tower_11.prefab
+- Assets/Content/Models/PO2StandV2.prefab
+- Assets/Content/Models/rus_build_9et_01.prefab
+- Assets/Content/Models/electric_tower_13.prefab
+- Assets/Content/Models/1.prefab
+- Assets/Content/Models/Gates.prefab
+- Assets/Content/Models/electric_tower_18.prefab
+- Assets/Content/Models/MetalSheetRack.prefab
+- Assets/Content/Models/Paving Stones 2.prefab
+- Assets/Content/Models/Tree9_2.prefab
+- Assets/Content/Models/2.prefab
+- Assets/Content/Models/7.prefab
+- Assets/Content/Models/8.prefab
+- Assets/Content/Models/MeshFence1.prefab
+- Assets/Content/Models/rus_build_5et_03b.prefab
+- Assets/Content/Models/electric_tower_15.prefab
+- Assets/Content/Models/electric_tower_01.prefab
+- Assets/Content/Models/BrickWallPillar.prefab
+- Assets/Content/Models/LC2.prefab
+- "Assets/Content/Models/\u536B\u661F\u5929\u7EBF.prefab"
+- Assets/Content/Models/MetalSheetRackGreen.prefab
+- Assets/Content/Models/5.prefab
+- Assets/Content/Models/rus_build_5et_03e.prefab
+- Assets/Content/Models/Paving Stones 1 Wet.prefab
+- Assets/Content/Models/MeshFencePillar.prefab
+- Assets/Content/Models/electric_tower_16.prefab
+- Assets/Content/Models/carCivi.prefab
+- Assets/Content/Models/MetalSheetRackRed.prefab
+- Assets/Content/Models/rus_build_9et_02b.prefab
+- Assets/Content/Models/rus_build_9et_03.prefab
+- Assets/Content/Models/rus_build_5et_01a.prefab
+- Assets/Content/Models/Sand.prefab
+- Assets/Content/Models/3.prefab
 - Assets/Content/Models/heliBody.prefab
+- Assets/Content/Models/RoadBarrier.prefab
+- Assets/Content/Models/electric_tower_00.prefab
+- Assets/Content/Models/OldWoodPillar.prefab
+- Assets/Content/Models/rus_build_2et_01a.prefab
+- Assets/Content/Models/electric_tower_17.prefab
+- Assets/Content/Models/electric_tower_08.prefab
+- "Assets/Content/Models/\u53CC\u81C2\u8DEF\u706F.prefab"
+- Assets/Content/Models/rus_build_2et_01c.prefab
+- Assets/Content/Models/PO2StandV1.prefab
+- Assets/Content/Models/OakBigTree01.prefab
+- Assets/Content/Models/Tree9_4.prefab
+- Assets/Content/Models/Paving Stones 1.prefab
+- Assets/Content/Models/electric_tower_02.prefab
+- Assets/Content/Models/PO2Stand.prefab
+- Assets/Content/Models/LowWoodFence.prefab
+- Assets/Content/Models/LowWoodFencePillar.prefab
+- Assets/Content/Models/BrickWall.prefab
+- Assets/Content/Models/ConcreteFance1.prefab
+- Assets/Content/Models/Tree9_5.prefab
+- Assets/Content/Models/rus_build_5et_05.prefab
+- Assets/_ModAssets_/ModManifest.xml.bytes
+- Assets/Content/Models/rusBulding1.prefab
+- Assets/Content/Models/0.prefab
+- Assets/Content/Models/heliBladeVice.prefab
+- Assets/Content/Models/WoodSharpFence.prefab
+- Assets/Content/Models/OldWoodFence.prefab
+- Assets/Content/Models/electric_tower_14.prefab
+- Assets/Content/Models/BrickWall2.prefab
+- Assets/Content/Models/9.prefab
+- Assets/Content/Models/LowWoodFenceSharp.prefab
+- Assets/Content/Models/rus_build_5et_03a.prefab
+- Assets/Content/Models/Asphalt2.prefab
+- Assets/Content/Models/rus_build_4et_01.prefab
+- Assets/Content/Models/rusBulding3.prefab
+- Assets/Content/Models/rus_build_9et_01b.prefab
+- Assets/Content/Models/rus_build_2et_01b.prefab
+- Assets/Content/Models/Asphalt1.prefab
+- Assets/Content/Models/LC1.prefab
+- Assets/Content/Models/rusBulding2.prefab
+- Assets/Content/Models/RocketFactOut.prefab
+- Assets/Content/Models/rusBulding4.prefab
+- Assets/Content/Models/rus_build_9et_03a.prefab
+- Assets/Content/Models/BrickDoorway.prefab
+- Assets/Content/Models/ConcreteFance.prefab
+- Assets/Content/Models/electric_tower_12.prefab
+- Assets/Content/Models/carMili.prefab
+- Assets/Content/Models/electric_tower_03.prefab
+- Assets/Content/Models/rus_build_5et_03f.prefab
+- Assets/Content/Models/Grass.prefab
+- Assets/Content/Models/ConcretePlate.prefab
+- Assets/Content/Models/BrickWall3.prefab
+- Assets/Content/Models/StreetLighting2.prefab
+- Assets/Content/Models/Tree9_3.prefab
+- Assets/Content/Models/rus_build_5et_01.prefab
+- Assets/Content/Models/rus_build_9et_03b.prefab
+- Assets/Content/Models/electric_tower_06.prefab
+- Assets/Content/Models/heliBladeMain.prefab
+- Assets/Content/Models/MetalSheetRackBlue.prefab
+- Assets/Content/Models/Asphalt3.prefab
+- Assets/Content/Models/deadPlane.prefab
+- Assets/Content/Models/electric_tower_10.prefab
+- Assets/Content/Models/rus_build_5et_02.prefab
+- Assets/Content/Models/treeTypeA.prefab
+- Assets/Content/Models/Paving Stones 2 Wet.prefab
+- Assets/Content/Models/electric_tower_19.prefab
+- Assets/Content/Models/MeshFenceHole.prefab
+- Assets/Content/Models/BrickWallPillar2.prefab
+- Assets/Content/Models/rus_build_4et_01a.prefab
+- Assets/Content/Models/rus_build_2et_01.prefab
 Dependencies: []

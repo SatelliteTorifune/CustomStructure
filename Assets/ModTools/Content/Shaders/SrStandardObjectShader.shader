@@ -1,4 +1,4 @@
-Shader "Jundroo/SR Standard/SrStandardObjectShader1" 
+Shader "Jundroo/SR Standard/SrStandardObjectShader" 
 {
     Properties
     {
@@ -6,8 +6,6 @@ Shader "Jundroo/SR Standard/SrStandardObjectShader1"
         _metallicness("Metallicness", Range(0, 1)) = 0
         _smoothness("Smoothness", Range(0, 1)) = 0
         _texture("Texture", 2D) = "white" {}
-        
-    
 
         [Space(20)][Header(Normal Map Options)]
         _normalMap("Normal Map", 2D) = "bump" {}

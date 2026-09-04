@@ -60,8 +60,8 @@
         {
             cameraAngle = saturate(dot(direction, posNorm));
             lightAngle = dot(lightDir.xyz, posNorm);
-            cameraScale = ExpScale(cameraAngle, _scaleDepth, _atmosSizeScale);
-            lightScale = ExpScale(lightAngle, _scaleDepth, _atmosSizeScale);
+            cameraScale = ExpScale(cameraAngle, _scaleDepthLn, _invAtmosSizeScale);
+            lightScale = ExpScale(lightAngle, _scaleDepthLn, _invAtmosSizeScale);
             
             float startDepth = exp((_innerRadius - _outerRadius) / _scaleDepth);
             precomputedCameraOffset = startDepth * cameraScale;
@@ -87,8 +87,8 @@
                 float3 currentNormalized = current / height;
                 cameraAngle = saturate(dot(direction, currentNormalized));
                 lightAngle = dot(lightDir.xyz, currentNormalized);
-                cameraScale = ExpScale(cameraAngle, _scaleDepth, _atmosSizeScale);
-                lightScale = ExpScale(lightAngle, _scaleDepth, _atmosSizeScale);
+                cameraScale = OpticalDepthScaleAdaptive(cameraAngle, height, _scaleDepthLn, _scaleOverScaleDepth, _invAtmosSizeScale);
+                lightScale = OpticalDepthScaleAdaptive(lightAngle, height, _scaleDepthLn, _scaleOverScaleDepth, _invAtmosSizeScale);
                 scatter =  exp(-1.0 / _scaleDepth) + depth * (lightScale - cameraScale);
             }
             else
@@ -96,7 +96,17 @@
                 scatter = depth * precomputedScatter - precomputedCameraOffset;
             }
 
-            float attenuate = exp(-scatter * (invWavelength.xyz * _kr4PI + _km4PI));
+            // Skip the per-channel ozone path when ozone is inactive (zero coefficient), falling back
+            // to the historical monochrome red-channel haze.
+            float3 attenuate;
+            if (any(_ozoneCoefficient))
+            {
+                attenuate = AtmosphereExtinction(scatter, invWavelength.xyz, _kr4PI, _km4PI, _ozoneCoefficient);
+            }
+            else
+            {
+                attenuate = exp(-scatter * (invWavelength.x * _kr4PI + _km4PI));
+            }
             atmosColor += attenuate * depth * scaledLength;
 
             current += step;
@@ -247,8 +257,11 @@
         #if UNITY_PASS_FORWARDADD
             return _LightColor0;
         #else
-            float intensityAtGround = smoothstep(-0.1, 0.0, positionAttenuation);
-            float duskLerp = saturate(positionAttenuation * 2.5);
+            // positionAttenuation is dot(surfaceNormal, sunDir). The intensity smoothstep extends
+            // into the night side so the dusk color survives the fade to black; the duskLerp ramp
+            // is narrow enough that the warm band doesn't bleed deep into the daylight side.
+            float intensityAtGround = smoothstep(-0.25, 0.0, positionAttenuation);
+            float duskLerp = saturate(positionAttenuation * 4.0);
             #if SRSTANDARD_TERRAIN || SRSTANDARD_WATER || SRSTANDARD_OBJECT || SRSTANDARD_SCALEDSPACE
                 return lerp(_duskColor, _noonColor, duskLerp) * intensityAtGround;
             #else
@@ -267,7 +280,20 @@
         #if UNITY_PASS_FORWARDADD
             return ApplyUnityLightingAdd(fragData, light, lightAttenuation);
         #elif SRSTANDARD_PART || SRSTANDARD_PART_TMPRO
-            return ApplyUnityLightingBase_ScaledIndirectSpecular(fragData, light, INPUT.ambient, lightAttenuation, _minimumReflectivity, indirectSpecular);
+            half4 baseColor = ApplyUnityLightingBase_ScaledIndirectSpecular(fragData, light, INPUT.ambient, lightAttenuation, _minimumReflectivity, indirectSpecular);
+
+            // The designer fill light, folded here so it costs no ForwardAdd draw per renderer. Keyworded
+            // rather than branched on the color: a runtime branch still compiles the additive BRDF into
+            // the flight variant, and the registers it reserves cost real time on pixel-bound crafts.
+            #ifdef DESIGNER_FILL_LIGHT_ON
+                UnityLight fillLight;
+                fillLight.dir = _directionalLightAdditive_Direction;
+                fillLight.color = _directionalLightAdditive_Color;
+                fillLight.ndotl = 0;
+                baseColor.rgb += ApplyUnityLightingAdd(fragData, fillLight, 1).rgb;
+            #endif
+
+            return baseColor;
         #else
             return ApplyUnityLightingBase(fragData, light, INPUT.ambient, lightAttenuation, indirectSpecular);
         #endif
@@ -281,7 +307,18 @@
         #if UNITY_PASS_FORWARDADD
             return ApplyUnityLightingAdd(fragData, light, lightAttenuation);
         #elif SRSTANDARD_PART || SRSTANDARD_PART_TMPRO
-            return ApplyUnityLightingBase_ScaledIndirectSpecular(fragData, light, INPUT.ambient, lightAttenuation, _minimumReflectivity, 0);
+            half4 baseColor = ApplyUnityLightingBase_ScaledIndirectSpecular(fragData, light, INPUT.ambient, lightAttenuation, _minimumReflectivity, 0);
+
+            // The designer fill light, as in ApplyUnityPBRLightingMetallic above.
+            #ifdef DESIGNER_FILL_LIGHT_ON
+                UnityLight fillLight;
+                fillLight.dir = _directionalLightAdditive_Direction;
+                fillLight.color = _directionalLightAdditive_Color;
+                fillLight.ndotl = 0;
+                baseColor.rgb += ApplyUnityLightingAdd(fragData, fillLight, 1).rgb;
+            #endif
+
+            return baseColor;
         #else
             return ApplyUnityLightingBase(fragData, light, INPUT.ambient, lightAttenuation, 0);
         #endif
@@ -300,6 +337,12 @@
         UnityLight light;
         light.dir = GetLightDirection(INPUT.worldPosition.xyz);
         light.color = INPUT.lightColor;
+
+        #if SRSTANDARD_SCALEDSPACE && NORMALMAP_WITH_VERTEX_DISPLACEMENT
+            // Vertex stage uses the displaced radial position, so non-spherical bodies go pitch
+            // black past the smooth-sphere half-plane. Recompute from the bumped normal.
+            light.color = GetLightColor(saturate(dot(INPUT.worldNormal, light.dir)));
+        #endif
 
         half lightAttenuation = 0;
         half emissionStrength = 0;
@@ -348,8 +391,24 @@
             color.rgb += emission;
         #endif
 
-        #if ATMOSPHERE  
-            float3 atmos = INPUT.atmosColor.rgb * atmosphereStrength;
+        #if ATMOSPHERE
+            // Tint the in-scattered atmosphere with the noon/dusk blend, faded into deep night via
+            // nightFade so the band has a gradient and lets the ambient-lit terrain show through.
+            // ScaledSpace's _lightDir is in object space so we read INPUT.normal there to keep
+            // frames matched; displaced bodies switch to the bumped normal to follow the surface.
+            #if SRSTANDARD_SCALEDSPACE
+                #if NORMALMAP_WITH_VERTEX_DISPLACEMENT
+                    float3 fragRelDir = normalize(INPUT.worldNormal);
+                #else
+                    float3 fragRelDir = normalize(INPUT.normal);
+                #endif
+            #else
+                float3 fragRelDir = normalize(INPUT.worldPosition.xyz - _planetCenter);
+            #endif
+            float fragPosAtten = dot(fragRelDir, GetLightDirection(INPUT.worldPosition.xyz));
+            half3 atmosTint = lerp(_duskColor, _noonColor, saturate(fragPosAtten * 4.0));
+            float nightFade = smoothstep(-0.4 * _atmosSizeScale, 0.0, fragPosAtten);
+            float3 atmos = INPUT.atmosColor.rgb * atmosphereStrength * atmosTint * nightFade;
             // Add in atmosphere, reducing the "saturation" of the base color the more powerful the atmosphere is.
             color.xyz = atmos + color.xyz * (1 - saturate(length(atmos)));
         #endif

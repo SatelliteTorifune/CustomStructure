@@ -15,6 +15,9 @@
         [Space(20)][Header(Atmosphere Options)]
         [KeywordEnum(None, LOW, HIGH)] OBJECT_ATMOSPHERE("Atmosphere Quality", Float) = 0
 
+        [Space(20)][Header(Part Material Overrides)]
+        _EmissiveOverride("Emissive Override", float) = -1
+
         // Text Mesh Pro
         [Space(20)][Header(Text Mesh Pro)]
         _FaceTex("Fill Texture", 2D) = "white" {}
@@ -77,6 +80,7 @@
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_fwdbase
+            #pragma multi_compile __ DESIGNER_FILL_LIGHT_ON
             #pragma multi_compile __ OBJECT_ATMOSPHERE
             #pragma multi_compile __ UNDERWATER
             #pragma multi_compile SR_LIGHTING_LOW SR_LIGHTING_MEDIUM SR_LIGHTING_HIGH

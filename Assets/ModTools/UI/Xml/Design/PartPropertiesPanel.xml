@@ -15,6 +15,7 @@
     <TextMeshProInputField class="spinner-texture-input" offsetMin="10 0" offsetMax="-10 0" />
     <Panel class="read-only" color="Red" />
     <Spinner class="read-only:@Spinner" interactable="false" />
+    <TextMeshProDropdown class="read-only:@TextMeshProDropdown" interactable="false" />
     <Toggle class="read-only:@Toggle" interactable="false" />
     <Button class="read-only:@Button" interactable="false" />
     <TextMeshProInputField class="read-only:@TextMeshProInputField" interactable="false" />
@@ -42,7 +43,7 @@
               <TextMeshPro internalId="label" anchorMin="0 0.5" />
               <RectTransform anchorMax="1 0.5">
                 <Button internalId="button" class="btn btn-primary" width="200">
-                  <TextMeshPro internalId="buttonLabel" text="Upgrade" />
+                  <TextMeshPro internalId="buttonLabel" text="{Design.PartProperties.Upgrade.Label}" />
                 </Button>
               </RectTransform>
             </RectTransform>
@@ -86,6 +87,21 @@
             </PartPropertySpinnerInputField>
           </Spinner>
         </Panel>
+        <Panel id="template-dropdown" class="property-row spinner row" active="false">
+          <TextMeshPro internalId="label" class="label" text="Target" />
+          <HorizontalLayout internalId="dropdown-group" class="no-image" rectAlignment="MiddleRight" width="65%" height="100%" spacing="0" childForceExpandWidth="false" childForceExpandHeight="true" childControlWidth="true" childControlHeight="true" childAlignment="MiddleCenter">
+            <Button internalId="dropdown-prev" class="btn" sprite="Ui/Sprites/Design/IconSpinnerArrowLeft" colors="ButtonHover|Primary|Button|Button" preserveAspect="true" minWidth="40" preferredWidth="40" flexibleWidth="0">
+              <TextMeshPro text="" raycastTarget="false" />
+            </Button>
+            <TextMeshProDropdown internalId="dropdown" class="designer-dropdown" minWidth="40" flexibleWidth="1">
+              <TMP_OptionTextTemplate enableWordWrapping="false" alignment="Center" padding="10 10 0 0" />
+              <TMP_DropdownLabel enableWordWrapping="false" alignment="Center" />
+            </TextMeshProDropdown>
+            <Button internalId="dropdown-next" class="btn" sprite="Ui/Sprites/Design/IconSpinnerArrowRight" colors="ButtonHover|Primary|Button|Button" preserveAspect="true" minWidth="40" preferredWidth="40" flexibleWidth="0">
+              <TextMeshPro text="" raycastTarget="false" />
+            </Button>
+          </HorizontalLayout>
+        </Panel>
         <Panel id="template-text-input" class="property-row row" active="false">
           <TextMeshPro internalId="label" class="label" width="35%" />
           <TextMeshProInputField internalId="input-field" width="65%" height="100%" rectAlignment="MiddleRight">
@@ -93,24 +109,24 @@
           </TextMeshProInputField>
         </Panel>
         <VerticalLayout id="template-color-sliders" class="property-row" padding="30 0 30 5" active="false">
-          <TextMeshPro internalId="color-sliders-label" class="label" text="Color" alignment="TopLeft" ignoreLayout="true" />
+          <TextMeshPro internalId="color-sliders-label" class="label" text="{Design.PartProperties.Color.Label}" alignment="TopLeft" ignoreLayout="true" />
           <Panel internalId="slider-panel-red" class="slider">
-            <TextMeshPro internalId="slider-label" class="label" text="Red" />
+            <TextMeshPro internalId="slider-label" class="label" text="{ColorPicker.Red}" />
             <TextMeshPro internalId="slider-value" class="value" text="None" />
             <Slider internalId="slider" />
           </Panel>
           <Panel internalId="slider-panel-green" class="slider">
-            <TextMeshPro internalId="slider-label" class="label" text="Green" />
+            <TextMeshPro internalId="slider-label" class="label" text="{ColorPicker.Green}" />
             <TextMeshPro internalId="slider-value" class="value" text="None" />
             <Slider internalId="slider" />
           </Panel>
           <Panel internalId="slider-panel-blue" class="slider">
-            <TextMeshPro internalId="slider-label" class="label" text="Blue" />
+            <TextMeshPro internalId="slider-label" class="label" text="{ColorPicker.Blue}" />
             <TextMeshPro internalId="slider-value" class="value" text="None" />
             <Slider internalId="slider" />
           </Panel>
           <Panel internalId="slider-panel-alpha" class="slider">
-            <TextMeshPro internalId="slider-label" class="label" text="Alpha" />
+            <TextMeshPro internalId="slider-label" class="label" text="{ColorPicker.Alpha}" />
             <TextMeshPro internalId="slider-value" class="value" text="None" />
             <Slider internalId="slider" />
           </Panel>
@@ -119,20 +135,20 @@
       <VerticalLayout id="part-part-properties" class="properties-group no-image">
         <Panel class="row">
           <TextMeshProInputField id="part-name-input" text="" width="100%" height="100%" rectAlignment="MiddleRight">
-            <TMP_Placeholder id="part-name-input-placeholder" text="Part Name..." alignment="Left" />
+            <TMP_Placeholder id="part-name-input-placeholder" text="{Design.PartProperties.PartName.Placeholder}" alignment="Left" />
             <TMP_Text text="" alignment="Left" />
           </TextMeshProInputField>
         </Panel>
         <Panel class="row">
-          <TextMeshPro class="label" text="Mass" rectAlignment="MiddleLeft" />
+          <TextMeshPro class="label" text="{Design.PartProperties.Mass.Label}" rectAlignment="MiddleLeft" />
           <TextMeshPro id="part-info-mass" class="value" text="2,512kg" anchorMin="0.35 0" alignment="Right" />
         </Panel>
         <Panel class="row">
-          <TextMeshPro class="label" text="Price" rectAlignment="MiddleLeft" />
+          <TextMeshPro class="label" text="{Design.PartProperties.Price.Label}" rectAlignment="MiddleLeft" />
           <TextMeshPro id="part-info-price" class="value" text="$42,012" anchorMin="0.35 0" alignment="Right" />
         </Panel>
         <Panel id="activation-group" class="spinner row">
-          <TextMeshPro class="label" text="Activation Group" width="50%" />
+          <TextMeshPro class="label" text="{Design.PartProperties.ActivationGroup.Label}" width="50%" />
           <Spinner internalId="spinner" width="50%">
             <TextMeshPro />
           </Spinner>
@@ -145,19 +161,37 @@
           <TextMeshPro internalId="label" class="header-text" text="Header Text" />
         </Panel>
         <Panel id="style" class="spinner row">
-          <TextMeshPro internalId="label" class="label" text="Style" />
-          <Spinner internalId="spinner">
-            <TextMeshPro />
-          </Spinner>
+          <TextMeshPro internalId="label" class="label" text="{Design.PartProperties.Style.Label}" />
+          <HorizontalLayout internalId="dropdown-group" class="no-image" rectAlignment="MiddleRight" width="65%" height="100%" spacing="0" childForceExpandWidth="false" childForceExpandHeight="true" childControlWidth="true" childControlHeight="true" childAlignment="MiddleCenter">
+            <Button internalId="dropdown-prev" class="btn" sprite="Ui/Sprites/Design/IconSpinnerArrowLeft" colors="ButtonHover|Primary|Button|Button" preserveAspect="true" minWidth="40" preferredWidth="40" flexibleWidth="0">
+              <TextMeshPro text="" raycastTarget="false" />
+            </Button>
+            <TextMeshProDropdown internalId="dropdown" class="designer-dropdown" minWidth="40" flexibleWidth="1">
+              <TMP_OptionTextTemplate enableWordWrapping="false" alignment="Center" padding="10 10 0 0" />
+              <TMP_DropdownLabel enableWordWrapping="false" alignment="Center" />
+            </TextMeshProDropdown>
+            <Button internalId="dropdown-next" class="btn" sprite="Ui/Sprites/Design/IconSpinnerArrowRight" colors="ButtonHover|Primary|Button|Button" preserveAspect="true" minWidth="40" preferredWidth="40" flexibleWidth="0">
+              <TextMeshPro text="" raycastTarget="false" />
+            </Button>
+          </HorizontalLayout>
         </Panel>
         <Panel id="texture-style" class="spinner row">
-          <TextMeshPro internalId="label" class="label" text="Texture" />
-          <Spinner internalId="spinner">
-            <TextMeshPro />
-          </Spinner>
+          <TextMeshPro internalId="label" class="label" text="{Design.PartProperties.Texture.Label}" />
+          <HorizontalLayout internalId="dropdown-group" class="no-image" rectAlignment="MiddleRight" width="65%" height="100%" spacing="0" childForceExpandWidth="false" childForceExpandHeight="true" childControlWidth="true" childControlHeight="true" childAlignment="MiddleCenter">
+            <Button internalId="dropdown-prev" class="btn" sprite="Ui/Sprites/Design/IconSpinnerArrowLeft" colors="ButtonHover|Primary|Button|Button" preserveAspect="true" minWidth="40" preferredWidth="40" flexibleWidth="0">
+              <TextMeshPro text="" raycastTarget="false" />
+            </Button>
+            <TextMeshProDropdown internalId="dropdown" class="designer-dropdown" minWidth="40" flexibleWidth="1">
+              <TMP_OptionTextTemplate enableWordWrapping="false" alignment="Center" padding="10 10 0 0" />
+              <TMP_DropdownLabel enableWordWrapping="false" alignment="Center" />
+            </TextMeshProDropdown>
+            <Button internalId="dropdown-next" class="btn" sprite="Ui/Sprites/Design/IconSpinnerArrowRight" colors="ButtonHover|Primary|Button|Button" preserveAspect="true" minWidth="40" preferredWidth="40" flexibleWidth="0">
+              <TextMeshPro text="" raycastTarget="false" />
+            </Button>
+          </HorizontalLayout>
         </Panel>
         <Panel id="texture-tile-x" class="spinner row">
-          <TextMeshPro class="label" text="Texture Tiling X" width="60%" />
+          <TextMeshPro class="label" text="{Design.PartProperties.TextureTilingX.Label}" width="60%" />
           <Spinner internalId="spinner" numericFormat="0.####" minValue="0.05" maxValue="100" stepSize="0.05" width="50%">
             <TextMeshProInputField class="spinner-texture-input" contentType="DecimalNumber">
               <TMP_Text />
@@ -165,7 +199,7 @@
           </Spinner>
         </Panel>
         <Panel id="texture-tile-y" class="spinner row">
-          <TextMeshPro class="label" text="Texture Tiling Y" width="60%" />
+          <TextMeshPro class="label" text="{Design.PartProperties.TextureTilingY.Label}" width="60%" />
           <Spinner internalId="spinner" numericFormat="0.####" minValue="0.05" maxValue="100" stepSize="0.05" width="50%">
             <TextMeshProInputField class="spinner-texture-input" contentType="DecimalNumber">
               <TMP_Text />
@@ -173,7 +207,7 @@
           </Spinner>
         </Panel>
         <Panel id="texture-offset-x" class="spinner row">
-          <TextMeshPro class="label" text="Texture Offset X" width="60%" />
+          <TextMeshPro class="label" text="{Design.PartProperties.TextureOffsetX.Label}" width="60%" />
           <Spinner internalId="spinner" numericFormat="0.####" minValue="0.00" maxValue="0.95" stepSize="0.05" width="50%">
             <TextMeshProInputField class="spinner-texture-input" contentType="DecimalNumber">
               <TMP_Text />
@@ -181,7 +215,7 @@
           </Spinner>
         </Panel>
         <Panel id="texture-offset-y" class="spinner row">
-          <TextMeshPro class="label" text="Texture Offset Y" width="60%" />
+          <TextMeshPro class="label" text="{Design.PartProperties.TextureOffsetY.Label}" width="60%" />
           <Spinner internalId="spinner" numericFormat="0.####" minValue="0.00" maxValue="0.95" stepSize="0.05" width="50%">
             <TextMeshProInputField class="spinner-texture-input" contentType="DecimalNumber">
               <TMP_Text />
@@ -193,6 +227,6 @@
     </VerticalLayout>
   </VerticalScrollView>
   <Panel id="empty-panel" padding="20" class="no-image">
-    <TextMeshPro internalId="label" text="Nothing selected" />
+    <TextMeshPro internalId="label" text="{Design.PartProperties.NothingSelected.Text}" />
   </Panel>
 </XmlLayout>

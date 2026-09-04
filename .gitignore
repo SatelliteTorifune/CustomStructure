@@ -98,3 +98,19 @@ InitTestScene*.unity*
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
 ModAssetBundles/psTEst.sr2-mod
+/ModAssetBundles
+/Assets/ALP_Assets
+*.meta
+/Assets/russian_buildings
+*.fbx
+*.mat
+*.prefab
+*.tif
+*.png
+*.dds
+*.jpg
+*.shader
+*.cginc
+*.bmp
+*.jpeg
+*.sr2-mod

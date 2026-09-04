@@ -1,185 +1,173 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using HarmonyLib;
-using Assets.Scripts.Menu.ListView;
-using System.Linq;
-using System.Reflection;
-using Jundroo.ModTools;
-using Assets.Scripts;
-using Assets.Scripts.Flight.Sim;
-using ModApi.Planet;
-using ModApi.Common.Extensions;
-using ModApi.Settings;
-using System;
-using ModApi;
-
-
-[Harmony]
-public static class StructureListChange
+namespace Assets.Scripts
 {
-    [HarmonyTranspiler]
-    [HarmonyPatch("AddStructureViewModel", "LoadItems", MethodType.Enumerator)]
-    private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-    { 
-        var codes = instructions.ToList();
-        List<CodeInstruction> codes2 = new List<CodeInstruction>();
-        var strcodetmp1 = codes[1065];
-        var strcodetmp2 = codes[1066];
-        for (int i = 1068; i <= 1076; i++)
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using ModApi;
+    using HarmonyLib;
+    using ModApi.Common.Extensions;
+    using ModApi.Planet;
+    using ModApi.Settings;
+    using ModApi.Ui;
+    using UnityEngine;
+    using Assets.Scripts.Flight.Sim;
+    using Assets.Scripts.Menu.ListView;
+
+    /// <summary>
+    /// Adds every entry of <see cref="Mod.StructurePrefabs"/> to the Planet Studio
+    /// "Add Structure" list and makes them instantiate in game.
+    ///
+    /// Design (mirrors the AddedStructures template, adapted for this mod):
+    ///  - LoadItems postfix        : appends our structures to the list (no IL rewriting).
+    ///  - UpdatePreview prefix     : loads and previews our prefabs through the mod's
+    ///                               resource loader instead of the game's Resources.Load.
+    ///  - InstantiateSubStructures : preloads our prefabs through the mod's resource
+    ///                               loader, then lets the original method finish the
+    ///                               recursion / rigid body / camera layer work.
+    /// </summary>
+    public static class StructureListChange
+    {
+        /// <summary>
+        /// Appends every entry of <see cref="Mod.StructurePrefabs"/> to the structure list.
+        /// </summary>
+        [HarmonyPatch(typeof(AddStructureViewModel), "LoadItems")]
+        private static class LoadItems_Patch
         {
-            codes2.Add(codes[i]);
-        }
-        int startIndex = 1166;
-        List<CodeInstruction> codes3 = new List<CodeInstruction>();
-        for (int i = 1; i <= 47; i++)
-        {
-            codes3.Add(codes[startIndex + i]);
-        }
-        
-        codes.RemoveRange(startIndex+1, codes3.Count);
-        for (int i = 0; i < names.Count; i++)
-        {
-            codes.Add(strcodetmp1);
-            //var tmp = strcodetmp2;
-            var tmp = new CodeInstruction(strcodetmp2)
+            [HarmonyPostfix]
+            private static void Postfix(AddStructureViewModel __instance)
             {
-                operand = names[i]
-            };
-            codes.Add(tmp);
-            var tmp2 = new CodeInstruction(strcodetmp2)
-            {
-                operand = paths[i]
-            };
-            codes.Add(tmp2);
-            foreach(var code in codes2) 
-            {
-                codes.Add(code);
+                foreach (KeyValuePair<string, string> prefab in Mod.StructurePrefabs)
+                {
+                    AddStructureViewModel.StructureItem structure =
+                        new AddStructureViewModel.StructureItem(
+                            prefab.Key,
+                            prefab.Value,
+                            string.Empty,
+                            1f,
+                            new Color32(100, 100, 100, byte.MaxValue));
+
+                    // The mod name as subtitle doubles as a marker that lets the
+                    // UpdatePreview prefix recognize our own items.
+                    __instance.ListView.CreateItem(
+                        structure.Name,
+                        Mod.Instance.ModInfo.Name,
+                        structure,
+                        null,
+                        ListViewScript.SpriteLoadLocation.Resources);
+                }
+
+                __instance.ListView.SelectedItem = null;
             }
         }
-        foreach (var code in codes3)
-        {
-            codes.Add(code);
-        }
-        Debug.Log("Code Process completed.");
-        return codes.AsEnumerable();
-    }
 
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(StructureNode), "InstantiateSubStructures")]
-    private static void InitSubStrucuturePrefix(Transform parent, IEnumerable<SubStructure> subStructures, ref int lod, ref bool insideRigidBody, StructureNode __instance)
-    {
-        TerrainQualitySettings.StructureDetailQuality structureDetailQuality = Game.InPlanetStudioScene ? TerrainQualitySettings.StructureDetailQuality.High : Game.Instance.QualitySettings.Terrain.StructureDetail.Value;
-        foreach (SubStructure subStructure in subStructures)
+        /// <summary>
+        /// Renders the preview for the mod's own structures (loaded through the mod's
+        /// resource loader). Returns false so the stock UpdatePreview is skipped.
+        /// </summary>
+        [HarmonyPatch(typeof(AddStructureViewModel), "UpdatePreview")]
+        private static class UpdatePreview_Patch
         {
-            try
+            [HarmonyPrefix]
+            private static bool Prefix(
+                AddStructureViewModel __instance,
+                ListViewItemScript item,
+                IListViewObjectViewer objectViewer,
+                Action completeCallback)
             {
-                if (structureDetailQuality >= subStructure.RequiredQuality)
+                if (item.Subtitle != Mod.Instance.ModInfo.Name)
                 {
-                    if (subStructure.LevelOfDetail <= lod || insideRigidBody)
+                    return true; // not ours, keep stock behavior
+                }
+
+                if (__instance.ListView.SelectedItem?.ItemModel is AddStructureViewModel.StructureItem structureItem)
+                {
+                    GameObject gameObject =
+                        UnityEngine.Object.Instantiate(
+                            Mod.Instance.ResourceLoader.LoadAsset<GameObject>(structureItem.PrefabPath));
+                    Utilities.ChangeLayersOfGameObjectAndChildrenRecursive(gameObject, 31, Array.Empty<int>());
+                    objectViewer.PreviewObject(gameObject, 0f, true, new Vector3(-45f, 0f, 0f));
+                }
+                else
+                {
+                    objectViewer.PreviewObject(null, 0f, true, null);
+                }
+
+                completeCallback?.Invoke();
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Preloads the mod's substructure prefabs through the mod resource loader, then
+        /// lets the original method run to finish the recursion / rigid body / unload work.
+        /// </summary>
+        [HarmonyPatch(typeof(StructureNode), "InstantiateSubStructures")]
+        private static class InstantiateSubStructures_Patch
+        {
+            [HarmonyPrefix]
+            private static bool Prefix(Transform parent, IEnumerable<SubStructure> subStructures, int lod, bool insideRigidBody)
+            {
+                TerrainQualitySettings.StructureDetailQuality structureDetailQuality =
+                    Game.InPlanetStudioScene
+                        ? TerrainQualitySettings.StructureDetailQuality.High
+                        : Game.Instance.QualitySettings.Terrain.StructureDetail.Value;
+
+                foreach (SubStructure subStructure in subStructures)
+                {
+                    if (structureDetailQuality < subStructure.RequiredQuality)
                     {
-                        bool flag = false;
-                        if (subStructure.LoadedGameObject == null)
-                        {
-                            GameObject gameObject = Game.Instance.ResourceLoader.InstantiatePrefab(subStructure.PrefabPath);
-                            StructureGameObjectScript structureGameObjectScript = gameObject.AddMissingComponent<StructureGameObjectScript>();
-                            structureGameObjectScript.StructureNode = null;
-                            structureGameObjectScript.SubStructure = subStructure;
-                            subStructure.OnGameObjectLoaded(gameObject);
-                            Transform transform = gameObject.transform;
-                            transform.SetParent(parent, false);
-                            transform.localPosition = subStructure.LocalPosition;
-                            transform.localRotation = Quaternion.Euler(subStructure.LocalRotation);
-                            transform.localScale = subStructure.LocalScale;
-                            subStructure.UpdateDynamicMaterials();
-                            StructureNode.FixNegativeBoxColliderScales(subStructure.LoadedGameObject);
-                            if (Game.InFlightScene && subStructure.AngularVelocity != null)
-                            {
-                                gameObject.AddComponent<SubStructureRotateScript>().Initialize(subStructure.AngularVelocity.Value);
-                            }
-                            if (subStructure.CameraCollision == SubStructure.CameraCollisionType.Collide)
-                            {
-                                Utilities.ChangeLayersOfGameObjectAndChildrenRecursive(gameObject, 29, Array.Empty<int>());
-                            }
-                            else if (subStructure.CameraCollision == SubStructure.CameraCollisionType.NoCollide)
-                            {
-                                Utilities.ChangeLayersOfGameObjectAndChildrenRecursive(gameObject, 26, Array.Empty<int>());
-                            }
-                            flag = true;
-                        }
-                        bool insideRigidBody2 = insideRigidBody || subStructure.Mass > 0.0;
-                        Traverse.Create(__instance).Method("InstantiateSubStructures").GetValue(subStructure.LoadedGameObject.transform, subStructure.SubStructures, lod, insideRigidBody2);
-                        if (Game.InFlightScene && flag && !insideRigidBody && subStructure.Mass > 0.0)
-                        {
-                            subStructure.LoadedGameObject.AddComponent<SubStructureRigidBodyScript>().Initialize(subStructure);
-                        }
+                        continue;
                     }
-                    else if (subStructure.LoadedGameObject != null)
+
+                    if (subStructure.LevelOfDetail > lod && !insideRigidBody)
                     {
-                        Traverse.Create<StructureNode>().Method("UnloadSubstructureGameObjects").GetValue(subStructure, true);
+                        continue;
+                    }
+
+                    if (subStructure.LoadedGameObject != null)
+                    {
+                        continue; // already loaded (by us or by a previous pass)
+                    }
+
+                    GameObject original = Mod.Instance.ResourceLoader.LoadAsset<GameObject>(subStructure.PrefabPath);
+                    if (original == null)
+                    {
+                        continue; // not a mod structure; let the original method handle it
+                    }
+
+                    GameObject gameObject = UnityEngine.Object.Instantiate(original);
+                    StructureGameObjectScript structureGameObjectScript =
+                        gameObject.AddMissingComponent<StructureGameObjectScript>();
+                    structureGameObjectScript.StructureNode = null;
+                    structureGameObjectScript.SubStructure = subStructure;
+                    subStructure.OnGameObjectLoaded(gameObject);
+
+                    Transform transform = gameObject.transform;
+                    transform.SetParent(parent, false);
+                    transform.SetLocalPositionAndRotation(subStructure.LocalPosition, Quaternion.Euler(subStructure.LocalRotation));
+                    transform.localScale = subStructure.LocalScale;
+
+                    subStructure.UpdateDynamicMaterials();
+                    StructureNode.FixNegativeBoxColliderScales(subStructure.LoadedGameObject);
+
+                    if (Game.InFlightScene && subStructure.AngularVelocity.HasValue)
+                    {
+                        gameObject.AddComponent<SubStructureRotateScript>()
+                            .Initialize(subStructure.AngularVelocity.Value);
+                    }
+
+                    if (subStructure.CameraCollision == SubStructure.CameraCollisionType.Collide)
+                    {
+                        Utilities.ChangeLayersOfGameObjectAndChildrenRecursive(gameObject, 29, Array.Empty<int>());
+                    }
+                    else if (subStructure.CameraCollision == SubStructure.CameraCollisionType.NoCollide)
+                    {
+                        Utilities.ChangeLayersOfGameObjectAndChildrenRecursive(gameObject, 26, Array.Empty<int>());
                     }
                 }
+
+                return true; // run the original too: it finishes recursion / rigid bodies / unload
             }
-            catch 
-            {
-            }
-        }
-        
-    }
-
-    public static void StartAdd()
-    {
-        var harmony = new Harmony("com.TL0SR2.StructurePatch");
-        harmony.PatchAll(Assembly.GetExecutingAssembly());
-    }
-
-    public static void AddStructure(string name,string path)
-    {
-        if (!path.EndsWith(".ModPrefab"))
-            path += ".ModPrefab";
-        names.Add(name);
-        paths.Add(path);
-    }
-
-    public static List<string> names = new List<string>();
-    public static List<string> paths = new List<string>();
-}
-
-[HarmonyPatch]
- class ResourceLoaderPatch
-{
-    private static IEnumerable<MethodBase> TargetMethods()
-    {
-        return AccessTools.GetTypesFromAssembly(typeof(ResourceLoader).Assembly)
-            .SelectMany(type => type.GetMethods())
-            .Where(method => method.Name.StartsWith("InstantiatePrefab") && !method.IsGenericMethod)
-            .Cast<MethodBase>();
-    }
-
-
-    private static bool Prefix(ref string path,ref bool logErrors,ref object __result)
-    {
-        if (!path.EndsWith(".ModPrefab"))
-        {
-            return true;
-        }
-        else
-        {
-            string pathtmp = path.Substring(0, path.Length - 10) + ".prefab";
-            GameObject gameObject = Mod.Instance.ResourceLoader.LoadAsset<GameObject>(pathtmp);
-            if (gameObject == null)
-            {
-                if (logErrors)
-                {
-                    Debug.LogErrorFormat($"The prefab at path '{pathtmp}' could not be found.");
-                }
-                __result = null;
-            }
-            else
-            {
-                __result = UnityEngine.Object.Instantiate<GameObject>(gameObject);
-            }
-            return false;
         }
     }
 }
